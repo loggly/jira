@@ -60,7 +60,7 @@ def run_but_ignore_errors(*args, **kwargs):
         try:
             return subprocess.check_output(*args, shell=True, stderr=devnull,
                                            **kwargs)
-        except (subprocess.SubprocessError,
+        except (subprocess.CalledProcessError,
                 FileNotFoundError, OSError):
             return None
         except Exception:
