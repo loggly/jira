@@ -1,6 +1,8 @@
-ipython>=4.0.0
-unittest2
-ordereddict
+# The order of packages is significant, because pip processes them in the order
+# of appearance. Changing the order has an impact on the overall integration
+# process, which may cause wedges in the gate later.
+
 PyJWT
 requests_jwt
+requests_kerberos
 filemagic>=1.6

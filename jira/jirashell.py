@@ -1,28 +1,29 @@
 #!/usr/bin/env python
 
-"""
-Starts an interactive JIRA session in an ipython terminal. Script arguments
-support changing the server and a persistent authentication over HTTP BASIC.
+"""Starts an interactive JIRA session in an ipython terminal.
+
+Script arguments support changing the server and a persistent authentication over HTTP BASIC.
 """
 
 try:
     import configparser
-except:
+except ImportError:
     from six.moves import configparser
-    from six.moves import input
 
+from six.moves import input
 from six.moves.urllib.parse import parse_qsl
 
 import argparse
 from getpass import getpass
-from sys import exit
+from jira import __version__
+from jira import JIRA
+from oauthlib.oauth1 import SIGNATURE_RSA
 import os
 import requests
-from oauthlib.oauth1 import SIGNATURE_RSA
 from requests_oauthlib import OAuth1
+from sys import exit
 
 import webbrowser
-from jira import JIRA, __version__
 
 CONFIG_PATH = os.path.join(
     os.path.expanduser('~'), '.jira-python', 'jirashell.ini')
@@ -133,6 +134,8 @@ def process_command_line():
                             help='The JIRA instance to connect to, including context path.')
     jira_group.add_argument('-r', '--rest-path',
                             help='The root path of the REST API to use.')
+    jira_group.add_argument('--auth-url',
+                            help='Path to URL to auth against.')
     jira_group.add_argument('-v', '--rest-api-version',
                             help='The version of the API under the specified name.')
 
@@ -173,6 +176,9 @@ def process_command_line():
 
     if args.rest_path:
         options['rest_path'] = args.rest_path
+
+    if args.auth_url:
+        options['auth_url'] = args.auth_url
 
     if args.rest_api_version:
         options['rest_api_version'] = args.rest_api_version
@@ -248,12 +254,18 @@ def main():
 
     jira = JIRA(options=options, basic_auth=basic_auth, oauth=oauth)
 
-    from IPython.frontend.terminal.embed import InteractiveShellEmbed
+    import IPython
+    # The top-level `frontend` package has been deprecated since IPython 1.0.
+    if IPython.version_info[0] >= 1:
+        from IPython.terminal.embed import InteractiveShellEmbed
+    else:
+        from IPython.frontend.terminal.embed import InteractiveShellEmbed
 
     ipshell = InteractiveShellEmbed(
         banner1='<JIRA Shell ' + __version__ + ' (' + jira.client_info() + ')>')
     ipshell("*** JIRA shell active; client is in 'jira'."
             ' Press Ctrl-D to exit.')
+
 
 if __name__ == '__main__':
     status = main()
