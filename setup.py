@@ -4,7 +4,6 @@ import os
 import sys
 import warnings
 
-from pip.req import parse_requirements
 from setuptools import find_packages, setup
 
 NAME = "jira"
@@ -17,6 +16,10 @@ if base_path not in sys.path:
 # this should help getting annoying warnings from inside distutils
 warnings.simplefilter('ignore', UserWarning)
 
+def parse_requirements(filename):
+    """ load requirements from a pip requirements file """
+    lineiter = (line.strip() for line in open(filename))
+    return [line for line in lineiter if line and not line.startswith("#")]
 
 def _is_ordereddict_needed():
     """ Check if `ordereddict` package really needed """
@@ -50,7 +53,7 @@ def read(fname):
 
 def get_requirements(*path):
     req_path = os.path.join(*path)
-    reqs = parse_requirements(req_path, session=False)
+    reqs = parse_requirements(req_path)
     return [str(ir.req) for ir in reqs]
 
 # class PyTest(TestCommand):
