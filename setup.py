@@ -6,10 +6,10 @@ import warnings
 
 from setuptools import find_packages, setup
 
-try: # for pip >= 10
-    from pip._internal.req import parse_requirements
-except ImportError: # for pip <= 9.0.3
-    from pip.req import parse_requirements
+def parse_requirements(filename):
+    """ load requirements from a pip requirements file """
+    lineiter = (line.strip() for line in open(filename))
+    return [line for line in lineiter if line and not line.startswith("#")]
 
 NAME = "jira"
 
@@ -53,8 +53,7 @@ def read(fname):
 
 def get_requirements(*path):
     req_path = os.path.join(*path)
-    reqs = parse_requirements(req_path, session=False)
-    return [str(ir.req) for ir in reqs]
+    return parse_requirements(req_path)
 
 # class PyTest(TestCommand):
 #     user_options = [('pytest-args=', 'a', "Arguments to pass to py.test")]
