@@ -172,7 +172,7 @@ class Resource(object):
         options.update({'path': path})
         return self._base_url.format(**options)
 
-    def update(self, fields=None, async=None, jira=None, notify=True, **kwargs):
+    def update(self, fields=None, use_async=None, jira=None, notify=True, **kwargs):
         """
         Update this resource on the server. Keyword arguments are marshalled into a dict before being sent. If this
         resource doesn't support ``PUT``, a :py:exc:`.JIRAError` will be raised; subclasses that specialize this method
@@ -180,8 +180,8 @@ class Resource(object):
 
         :param async: if true the request will be added to the queue so it can be executed later using async_run()
         """
-        if async is None:
-            async = self._options['async']
+        if use_async is None:
+            use_async = self._options['async']
 
         data = {}
         if fields is not None:
@@ -250,7 +250,7 @@ class Resource(object):
                 #    data['fields']['assignee'] = {'name': self._options['autofix']}
             # EXPERIMENTAL --->
             # import grequests
-            if async:
+            if use_async:
                 if not hasattr(self._session, '_async_jobs'):
                     self._session._async_jobs = set()
                 self._session._async_jobs.add(threaded_requests.put(
@@ -404,7 +404,7 @@ class Issue(Resource):
         if raw:
             self._parse_raw(raw)
 
-    def update(self, fields=None, update=None, async=None, jira=None, notify=True, **fieldargs):
+    def update(self, fields=None, update=None, use_async=None, jira=None, notify=True, **fieldargs):
         """
         Update this issue on the server.
 
@@ -453,7 +453,7 @@ class Issue(Resource):
             else:
                 fields_dict[field] = value
 
-        super(Issue, self).update(async=async, jira=jira, notify=notify, fields=data)
+        super(Issue, self).update(use_async=use_async, jira=jira, notify=notify, fields=data)
 
     def add_field_value(self, field, value):
         """
@@ -492,7 +492,7 @@ class Comment(Resource):
         if raw:
             self._parse_raw(raw)
 
-    def update(self, fields=None, async=None, jira=None, body='', visibility=None):
+    def update(self, fields=None, use_async=None, jira=None, body='', visibility=None):
         # TODO: fix the Resource.update() override mess
         data = {}
         if body:
