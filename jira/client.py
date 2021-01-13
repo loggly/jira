@@ -189,7 +189,7 @@ class JIRA(object):
     AGILE_BASE_URL = GreenHopperResource.AGILE_BASE_URL
 
     def __init__(self, server=None, options=None, basic_auth=None, oauth=None, jwt=None, kerberos=False,
-                 validate=False, get_server_info=True, async=False, logging=True, max_retries=3, proxies=None):
+                 validate=False, get_server_info=True, use_async=False, logging=True, max_retries=3, proxies=None):
         """
         Construct a JIRA client instance.
 
@@ -234,7 +234,7 @@ class JIRA(object):
             as anononymous it will fail to instanciate.
         :param get_server_info: If true it will fetch server version info first to determine if some API calls
             are available.
-        :param async: To enable async requests for those actions where we implemented it, like issue update() or delete().
+        :param use_async: To enable async requests for those actions where we implemented it, like issue update() or delete().
         Obviously this means that you cannot rely on the return code when this is enabled.
         """
         # force a copy of the tuple to be used in __del__() because
@@ -252,8 +252,8 @@ class JIRA(object):
 
         if server:
             options['server'] = server
-        if async:
-            options['async'] = async
+        if use_async:
+            options['async'] = use_async
 
         self.logging = logging
 
@@ -3171,8 +3171,8 @@ class JIRA(object):
 
 class GreenHopper(JIRA):
 
-    def __init__(self, options=None, basic_auth=None, oauth=None, async=None):
+    def __init__(self, options=None, basic_auth=None, oauth=None, use_async=None):
         warnings.warn(
             "GreenHopper() class is deprecated, just use JIRA() instead.", DeprecationWarning)
         JIRA.__init__(
-            self, options=options, basic_auth=basic_auth, oauth=oauth, async=async)
+            self, options=options, basic_auth=basic_auth, oauth=oauth, use_async=use_async)
